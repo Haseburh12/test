@@ -3,139 +3,111 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Contact Form</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>My Custom Feedback Form</title>
     <style>
-        /* Custom styles for the Inter font */
-        body {
-            font-family: 'Inter', sans-serif;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
+        /* Basic styling for better appearance */
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f4f4; }
+        .container { background-color: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); max-width: 500px; margin: 0 auto; }
+        label { display: block; margin-bottom: 8px; font-weight: bold; }
+        input[type="text"], input[type="email"], textarea {
+            width: calc(100% - 20px); /* Account for padding */
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box; /* Include padding and border in the element's total width and height */
         }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover { background-color: #0056b3; }
+        #responseMessage {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+            display: none; /* Hidden by default */
+        }
+        .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
     </style>
 </head>
-<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+<body>
+    <div class="container">
+        <h2>Send Us Your Feedback!</h2>
 
-    <div class="bg-white p-6 rounded-lg shadow-md w-full max-w-sm">
-        <h2 class="text-2xl font-semibold text-gray-800 mb-4 text-center">Contact Us</h2>
+        <form id="feedbackForm">
+            <label for="userName">Your Name:</label>
+            <input type="text" id="userName" name="userName" required>
 
-        <!-- Form action points to your Tally.so URL -->
-        <form id="contactForm" action="https://tally.so/r/w2YlkV" method="POST" class="space-y-4">
-            <div>
-                <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
-                <input
-                    type="text"
-                    id="name"
-                    name="name"
-                    required
-                    class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-sm"
-                >
-            </div>
+            <label for="userEmail">Your Email:</label>
+            <input type="email" id="userEmail" name="userEmail" required>
 
-            <div>
-                <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
-                <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    required
-                    class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-sm"
-                >
-            </div>
+            <label for="userMessage">Your Message:</label>
+            <textarea id="userMessage" name="userMessage" rows="5" required></textarea>
 
-            <div>
-                <label for="message" class="block text-sm font-medium text-gray-700">Message</label>
-                <textarea
-                    id="message"
-                    name="message"
-                    rows="3"
-                    required
-                    class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-sm resize-y"
-                ></textarea>
-            </div>
-
-            <div class="flex justify-center">
-                <button
-                    type="submit"
-                    id="submitButton"
-                    class="w-full px-4 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out"
-                >
-                    Send
-                </button>
-            </div>
-
-            <!-- Message display area -->
-            <div id="formMessage" class="mt-2 text-center text-sm font-medium"></div>
+            <button type="submit">Submit Feedback</button>
         </form>
+
+        <div id="responseMessage"></div>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const contactForm = document.getElementById('contactForm');
-            const submitButton = document.getElementById('submitButton');
-            const formMessage = document.getElementById('formMessage');
+        // Get references to the form and message display area
+        const form = document.getElementById('feedbackForm');
+        const responseMessage = document.getElementById('responseMessage');
 
-            contactForm.addEventListener('submit', async (event) => {
-                event.preventDefault(); // Prevent the default form submission
+        // IMPORTANT: REPLACE THIS WITH THE "Web app URL" you copied from Apps Script deployment
+        const WEB_APP_URL = 'YOUR_APPS_SCRIPT_WEB_APP_URL_HERE'; // <--- CHANGE THIS!
 
-                // Clear previous messages and disable button
-                formMessage.textContent = '';
-                formMessage.className = 'mt-2 text-center text-sm font-medium'; // Reset classes
-                submitButton.disabled = true;
-                submitButton.textContent = 'Sending...';
-                submitButton.classList.add('opacity-75', 'cursor-not-allowed');
+        // Add an event listener for when the form is submitted
+        form.addEventListener('submit', async function(event) {
+            event.preventDefault(); // Stop the default form submission (which would refresh the page)
 
-                try {
-                    const formData = new FormData(contactForm);
-                    const response = await fetch(contactForm.action, {
-                        method: 'POST',
-                        body: formData,
-                        // Removed 'Accept': 'application/json' as it might cause issues if Tally.so doesn't always return JSON
-                    });
+            // Clear previous messages
+            responseMessage.style.display = 'none';
+            responseMessage.className = '';
+            responseMessage.textContent = '';
 
-                    if (response.ok) {
-                        // Tally.so typically returns a 200 OK on success, often with a redirect or simple page.
-                        // No need to parse JSON here unless Tally.so explicitly guarantees it.
-                        formMessage.textContent = 'Message sent! Thank you.';
-                        formMessage.classList.add('text-green-600');
-                        contactForm.reset(); // Clear the form fields
-                    } else {
-                        // Handle non-OK responses (e.g., 400, 500)
-                        let errorMessage = 'Error sending message. Please try again.';
-                        try {
-                            // Check content type before attempting to parse as JSON
-                            const contentType = response.headers.get("content-type");
-                            if (contentType && contentType.indexOf("application/json") !== -1) {
-                                const errorData = await response.json();
-                                if (errorData && errorData.message) {
-                                    errorMessage = errorData.message;
-                                } else if (errorData && errorData.errors && errorData.errors.length > 0) {
-                                    // Tally.so might return an array of errors
-                                    errorMessage = errorData.errors[0].message || errorMessage;
-                                }
-                            } else {
-                                // If not JSON, use status text or a generic message
-                                errorMessage = `Error: ${response.status} ${response.statusText || ''}. Please try again.`;
-                            }
-                        } catch (jsonError) {
-                            // Fallback if response is not JSON or parsing fails
-                            console.error('Error parsing non-OK response:', jsonError);
-                            errorMessage = `Error: ${response.status} ${response.statusText || ''}. Please try again.`;
-                        }
-                        formMessage.textContent = errorMessage;
-                        formMessage.classList.add('text-red-600');
-                    }
-                } catch (error) {
-                    console.error('Network error or unexpected issue:', error);
-                    formMessage.textContent = 'A network error occurred. Please check your connection and try again.';
-                    formMessage.classList.add('text-red-600');
-                } finally {
-                    submitButton.disabled = false;
-                    submitButton.textContent = 'Send';
-                    submitButton.classList.remove('opacity-75', 'cursor-not-allowed');
+            // Get form data using FormData API
+            const formData = new FormData(form);
+
+            // Convert FormData to URLSearchParams for x-www-form-urlencoded
+            // This matches what e.parameter expects in Apps Script's doPost
+            const params = new URLSearchParams(formData);
+
+            try {
+                // Send the data using the Fetch API
+                const response = await fetch(WEB_APP_URL, {
+                    method: 'POST',           // Must be POST for doPost(e) to be called
+                    body: params              // The form data
+                    // headers: { 'Content-Type': 'application/x-www-form-urlencoded' } // fetch sets this for URLSearchParams body
+                });
+
+                // Check if the request was successful (HTTP status 200-299)
+                if (response.ok) {
+                    const result = await response.json(); // Assuming Apps Script returns JSON now
+                    responseMessage.textContent = result.message || 'Form submitted successfully!';
+                    responseMessage.className = 'success';
+                    form.reset(); // Clear the form fields after successful submission
+                } else {
+                    const errorResult = await response.json();
+                    responseMessage.textContent = errorResult.message || 'Error submitting form. Please try again.';
+                    responseMessage.className = 'error';
                 }
-            });
+            } catch (error) {
+                // Handle network errors or other unexpected issues
+                console.error('Submission error:', error);
+                responseMessage.textContent = 'An unexpected error occurred. Please check your network and try again.';
+                responseMessage.className = 'error';
+            }
+            responseMessage.style.display = 'block'; // Show the message
         });
     </script>
 </body>
