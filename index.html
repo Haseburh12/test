@@ -91,31 +91,44 @@
                     const response = await fetch(contactForm.action, {
                         method: 'POST',
                         body: formData,
-                        headers: {
-                            'Accept': 'application/json' // Request JSON response from Tally.so
-                        }
+                        // Removed 'Accept': 'application/json' as it might cause issues if Tally.so doesn't always return JSON
                     });
 
                     if (response.ok) {
+                        // Tally.so typically returns a 200 OK on success, often with a redirect or simple page.
+                        // No need to parse JSON here unless Tally.so explicitly guarantees it.
                         formMessage.textContent = 'Message sent! Thank you.';
                         formMessage.classList.add('text-green-600');
                         contactForm.reset(); // Clear the form fields
                     } else {
+                        // Handle non-OK responses (e.g., 400, 500)
                         let errorMessage = 'Error sending message. Please try again.';
                         try {
-                            const errorData = await response.json();
-                            if (errorData && errorData.message) {
-                                errorMessage = errorData.message;
+                            // Check content type before attempting to parse as JSON
+                            const contentType = response.headers.get("content-type");
+                            if (contentType && contentType.indexOf("application/json") !== -1) {
+                                const errorData = await response.json();
+                                if (errorData && errorData.message) {
+                                    errorMessage = errorData.message;
+                                } else if (errorData && errorData.errors && errorData.errors.length > 0) {
+                                    // Tally.so might return an array of errors
+                                    errorMessage = errorData.errors[0].message || errorMessage;
+                                }
+                            } else {
+                                // If not JSON, use status text or a generic message
+                                errorMessage = `Error: ${response.status} ${response.statusText || ''}. Please try again.`;
                             }
                         } catch (jsonError) {
-                            console.error('Error parsing response:', jsonError);
+                            // Fallback if response is not JSON or parsing fails
+                            console.error('Error parsing non-OK response:', jsonError);
+                            errorMessage = `Error: ${response.status} ${response.statusText || ''}. Please try again.`;
                         }
                         formMessage.textContent = errorMessage;
                         formMessage.classList.add('text-red-600');
                     }
                 } catch (error) {
                     console.error('Network error or unexpected issue:', error);
-                    formMessage.textContent = 'Network error. Please check your connection.';
+                    formMessage.textContent = 'A network error occurred. Please check your connection and try again.';
                     formMessage.classList.add('text-red-600');
                 } finally {
                     submitButton.disabled = false;
