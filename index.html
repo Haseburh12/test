@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Contact Us</title>
+    <title>Contact Form</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -15,60 +15,43 @@
         }
     </style>
 </head>
-<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4 sm:p-6 lg:p-8">
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
 
-    <div class="bg-white p-6 sm:p-8 rounded-xl shadow-lg w-full max-w-md">
-        <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">Get in Touch</h2>
-        <p class="text-gray-600 mb-8 text-center">
-            We'd love to hear from you! Please fill out the form below.
-        </p>
+    <div class="bg-white p-6 rounded-lg shadow-md w-full max-w-sm">
+        <h2 class="text-2xl font-semibold text-gray-800 mb-4 text-center">Contact Us</h2>
 
-        <!--
-            IMPORTANT: Replace "YOUR_TALLY_FORM_URL" with the actual URL of your Tally.so form.
-            To get your Tally.so form URL:
-            1. Go to https://tally.so/ and sign up for a free account.
-            2. Create a new form.
-            3. Once created, go to the "Share" tab for your form.
-            4. Copy the "Link" (e.g., https://tally.so/r/mY123X). This is what you'll use as the 'action' URL.
-
-            Tally.so offers UNLIMITED forms and UNLIMITED submissions on its free plan (within fair usage).
-            We're using JavaScript to handle the submission for a smoother user experience (no page reload,
-            loading state, and success/error messages).
-        -->
-        <form id="contactForm" action="Yhttps://tally.so/r/w2YlkV" method="POST" class="space-y-6">
+        <!-- Form action points to your Tally.so URL -->
+        <form id="contactForm" action="https://tally.so/r/w2YlkV" method="POST" class="space-y-4">
             <div>
-                <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Your Name</label>
+                <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
                 <input
                     type="text"
                     id="name"
                     name="name"
                     required
-                    placeholder="John Doe"
-                    class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition duration-150 ease-in-out"
+                    class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-sm"
                 >
             </div>
 
             <div>
-                <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Your Email</label>
+                <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
                 <input
                     type="email"
                     id="email"
-                    name="email"  <!-- Tally.so uses 'email' directly for the email field -->
+                    name="email"
                     required
-                    placeholder="you@example.com"
-                    class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition duration-150 ease-in-out"
+                    class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-sm"
                 >
             </div>
 
             <div>
-                <label for="message" class="block text-sm font-medium text-gray-700 mb-1">Message</label>
+                <label for="message" class="block text-sm font-medium text-gray-700">Message</label>
                 <textarea
                     id="message"
                     name="message"
-                    rows="5"
+                    rows="3"
                     required
-                    placeholder="Enter your message here..."
-                    class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition duration-150 ease-in-out resize-y"
+                    class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-sm resize-y"
                 ></textarea>
             </div>
 
@@ -76,14 +59,14 @@
                 <button
                     type="submit"
                     id="submitButton"
-                    class="w-full px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out sm:w-auto sm:inline-flex sm:justify-center"
+                    class="w-full px-4 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out"
                 >
-                    Send Message
+                    Send
                 </button>
             </div>
 
             <!-- Message display area -->
-            <div id="formMessage" class="mt-4 text-center text-sm font-medium"></div>
+            <div id="formMessage" class="mt-2 text-center text-sm font-medium"></div>
         </form>
     </div>
 
@@ -98,7 +81,7 @@
 
                 // Clear previous messages and disable button
                 formMessage.textContent = '';
-                formMessage.className = 'mt-4 text-center text-sm font-medium'; // Reset classes
+                formMessage.className = 'mt-2 text-center text-sm font-medium'; // Reset classes
                 submitButton.disabled = true;
                 submitButton.textContent = 'Sending...';
                 submitButton.classList.add('opacity-75', 'cursor-not-allowed');
@@ -108,43 +91,35 @@
                     const response = await fetch(contactForm.action, {
                         method: 'POST',
                         body: formData,
-                        // Tally.so typically handles CORS, so no explicit headers needed here
-                        // unless you encounter issues.
-                        // For Tally, you might need to set 'Accept': 'application/json'
-                        // if you want a JSON response for advanced handling, but for basic
-                        // success/failure, the default form submission is usually fine.
                         headers: {
                             'Accept': 'application/json' // Request JSON response from Tally.so
                         }
                     });
 
                     if (response.ok) {
-                        // Tally.so returns a 200 OK on success
-                        formMessage.textContent = 'Thank you for your message! We will get back to you soon.';
+                        formMessage.textContent = 'Message sent! Thank you.';
                         formMessage.classList.add('text-green-600');
                         contactForm.reset(); // Clear the form fields
                     } else {
-                        // Handle non-OK responses (e.g., 400, 500)
-                        let errorMessage = 'Oops! There was an error submitting your form.';
+                        let errorMessage = 'Error sending message. Please try again.';
                         try {
                             const errorData = await response.json();
                             if (errorData && errorData.message) {
                                 errorMessage = errorData.message;
                             }
                         } catch (jsonError) {
-                            // Fallback if response is not JSON
                             console.error('Error parsing response:', jsonError);
                         }
-                        formMessage.textContent = errorMessage + ' Please try again.';
+                        formMessage.textContent = errorMessage;
                         formMessage.classList.add('text-red-600');
                     }
                 } catch (error) {
                     console.error('Network error or unexpected issue:', error);
-                    formMessage.textContent = 'A network error occurred. Please check your connection and try again.';
+                    formMessage.textContent = 'Network error. Please check your connection.';
                     formMessage.classList.add('text-red-600');
                 } finally {
                     submitButton.disabled = false;
-                    submitButton.textContent = 'Send Message';
+                    submitButton.textContent = 'Send';
                     submitButton.classList.remove('opacity-75', 'cursor-not-allowed');
                 }
             });
